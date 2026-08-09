@@ -1,0 +1,73 @@
+---
+# tasks file for roles/netbeans
+- name: Instalar dependencias para NetBeans
+  ansible.builtin.apt:
+    name:
+      - unzip
+      - wget
+    state: present
+    update_cache: true
+
+- name: Descargar NetBeans 30 en el controlador
+  ansible.builtin.get_url:
+    url: https://dlcdn.apache.org/netbeans/netbeans/30/netbeans-30-bin.zip
+    dest: "{{ role_path }}/files/netbeans-30-bin.zip"
+    mode: '0644'
+  delegate_to: localhost
+  run_once: true
+  become: false
+
+- name: Crear directorio de instalacion
+  ansible.builtin.file:
+    path: /opt/netbeans
+    state: directory
+    mode: '0755'
+
+- name: Copiar NetBeans a los clientes
+  ansible.builtin.copy:
+    src: netbeans-30-bin.zip
+    dest: /tmp/netbeans-30-bin.zip
+    mode: '0644'
+
+- name: Descomprimir NetBeans
+  ansible.builtin.unarchive:
+    src: /tmp/netbeans-30-bin.zip
+    dest: /opt
+    remote_src: true
+    creates: /opt/netbeans/bin/netbeans
+
+- name: Crear enlace ejecutable
+  ansible.builtin.file:
+    src: /opt/netbeans/bin/netbeans
+    dest: /usr/local/bin/netbeans
+    state: link
+
+- name: Crear lanzador de escritorio
+  ansible.builtin.copy:
+    dest: /usr/share/applications/netbeans.desktop
+    mode: '0644'
+    content: |
+      [Desktop Entry]
+      Name=Apache NetBeans 30
+      Comment=Integrated Development Environment
+      Exec=/opt/netbeans/bin/netbeans
+      Icon=/opt/netbeans/nb/netbeans.png
+      Terminal=false
+      Type=Application
+      Categories=Development;IDE;
+
+- name: Eliminar ZIP temporal
+  ansible.builtin.file:
+    path: /tmp/netbeans-30-bin.zip
+    state: absent
+
+- name: Comprobar instalacion de NetBeans
+  ansible.builtin.stat:
+    path: /opt/netbeans/bin/netbeans
+  register: netbeans_binary
+
+- name: Verificar que NetBeans esta instalado
+  ansible.builtin.assert:
+    that:
+      - netbeans_binary.stat.exists
+    fail_msg: "NetBeans no se ha instalado correctamente"

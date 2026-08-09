@@ -1,0 +1,17 @@
+---
+# tasks file for roles/gthumb
+- name: Instalar gThumb
+  ansible.builtin.apt:
+    name: gthumb
+    state: present
+    update_cache: true
+
+- name: Comprobar paquete gThumb instalado
+  ansible.builtin.command:
+    cmd: dpkg-query -W -f='${Version}' gthumb
+  register: gthumb_version
+  changed_when: false
+
+- name: Mostrar version de gThumb
+  ansible.builtin.debug:
+    var: gthumb_version.stdout

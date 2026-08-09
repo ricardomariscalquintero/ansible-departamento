@@ -1,0 +1,7 @@
+---
+# tasks file for roles/vlc
+- name: Instalar VLC
+  ansible.builtin.apt:
+    name: vlc
+    state: present
+    update_cache: true

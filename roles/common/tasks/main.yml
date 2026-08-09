@@ -1,0 +1,20 @@
+---
+- name: Actualizar cache de APT
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Instalar paquetes basicos
+  ansible.builtin.apt:
+    name:
+      - curl
+      - wget
+      - git
+      - vim
+      - nano
+      - htop
+      - net-tools
+      - dnsutils
+      - unzip
+      - p7zip-full
+    state: present

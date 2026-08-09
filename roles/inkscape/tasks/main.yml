@@ -1,0 +1,7 @@
+---
+# tasks file for roles/inkscape
+- name: Instalar Inkscape
+  ansible.builtin.apt:
+    name: inkscape
+    state: present
+    update_cache: true

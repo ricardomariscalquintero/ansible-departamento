@@ -1,0 +1,56 @@
+---
+# tasks file for roles/anaconda
+- name: Descargar Anaconda en el controlador
+  ansible.builtin.get_url:
+    url: https://repo.anaconda.com/archive/Anaconda3-2025.12-2-Linux-x86_64.sh
+    dest: "{{ role_path }}/files/Anaconda3-2025.12-2-Linux-x86_64.sh"
+    mode: '0755'
+  delegate_to: localhost
+  run_once: true
+  become: false
+
+- name: Copiar instalador de Anaconda a los clientes
+  ansible.builtin.copy:
+    src: Anaconda3-2025.12-2-Linux-x86_64.sh
+    dest: /tmp/anaconda.sh
+    mode: '0755'
+
+- name: Instalar Anaconda
+  ansible.builtin.command:
+    cmd: /tmp/anaconda.sh -b -p /opt/anaconda3
+  args:
+    creates: /opt/anaconda3/bin/conda
+
+- name: Crear enlace para conda
+  ansible.builtin.file:
+    src: /opt/anaconda3/bin/conda
+    dest: /usr/local/bin/conda
+    state: link
+
+- name: Crear enlace para Anaconda Navigator
+  ansible.builtin.file:
+    src: /opt/anaconda3/bin/anaconda-navigator
+    dest: /usr/local/bin/anaconda-navigator
+    state: link
+
+- name: Crear configuracion global de PATH
+  ansible.builtin.copy:
+    dest: /etc/profile.d/anaconda.sh
+    mode: '0644'
+    content: |
+      export PATH="/opt/anaconda3/bin:$PATH"
+
+- name: Eliminar instalador temporal
+  ansible.builtin.file:
+    path: /tmp/anaconda.sh
+    state: absent
+
+- name: Comprobar version de Conda
+  ansible.builtin.command:
+    cmd: /opt/anaconda3/bin/conda --version
+  register: conda_version
+  changed_when: false
+
+- name: Mostrar version de Conda
+  ansible.builtin.debug:
+    var: conda_version.stdout

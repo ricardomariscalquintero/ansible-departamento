@@ -1,0 +1,68 @@
+---
+# tasks file for roles/android_studio
+- name: Instalar dependencias para Android Studio
+  ansible.builtin.apt:
+    name:
+      - tar
+      - gzip
+    state: present
+    update_cache: true
+
+- name: Descargar Android Studio Quail 3 en el controlador
+  ansible.builtin.get_url:
+    url: https://edgedl.me.gvt1.com/android/studio/ide-zips/2026.1.3.7/android-studio-quail3-linux.tar.gz
+    dest: "{{ role_path }}/files/android-studio-quail3-linux.tar.gz"
+    mode: '0644'
+    checksum: "sha256:36832122557ab73ca68dfd9bd989ddac40103ac003ca10e04c949a1f61578a67"
+  delegate_to: localhost
+  run_once: true
+  become: false
+
+- name: Copiar Android Studio a los clientes
+  ansible.builtin.copy:
+    src: android-studio-quail3-linux.tar.gz
+    dest: /tmp/android-studio.tar.gz
+    mode: '0644'
+
+- name: Descomprimir Android Studio en /opt
+  ansible.builtin.unarchive:
+    src: /tmp/android-studio.tar.gz
+    dest: /opt
+    remote_src: true
+    creates: /opt/android-studio/bin/studio
+
+- name: Crear enlace ejecutable de Android Studio
+  ansible.builtin.file:
+    src: /opt/android-studio/bin/studio
+    dest: /usr/local/bin/android-studio
+    state: link
+
+- name: Crear lanzador de Android Studio
+  ansible.builtin.copy:
+    dest: /usr/share/applications/android-studio.desktop
+    mode: '0644'
+    content: |
+      [Desktop Entry]
+      Name=Android Studio
+      Comment=Android Development Environment
+      Exec=/opt/android-studio/bin/studio
+      Icon=/opt/android-studio/bin/studio.svg
+      Terminal=false
+      Type=Application
+      Categories=Development;IDE;
+
+- name: Eliminar instalador temporal
+  ansible.builtin.file:
+    path: /tmp/android-studio.tar.gz
+    state: absent
+
+- name: Comprobar instalacion de Android Studio
+  ansible.builtin.stat:
+    path: /opt/android-studio/bin/studio
+  register: android_studio_binary
+
+- name: Verificar Android Studio
+  ansible.builtin.assert:
+    that:
+      - android_studio_binary.stat.exists
+    fail_msg: "Android Studio no se ha instalado correctamente"

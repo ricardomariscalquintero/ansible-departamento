@@ -1,0 +1,62 @@
+---
+# tasks file for roles/unity
+- name: Instalar dependencias para Unity Hub
+  ansible.builtin.apt:
+    name:
+      - curl
+      - gnupg
+      - ca-certificates
+    state: present
+    update_cache: true
+
+- name: Crear directorio de keyrings
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Descargar clave publica de Unity
+  ansible.builtin.get_url:
+    url: https://hub.unity3d.com/linux/keys/public
+    dest: /tmp/unityhub-public.key
+    mode: '0644'
+
+- name: Convertir clave de Unity a GPG
+  ansible.builtin.command:
+    cmd: >
+      gpg --dearmor --yes
+      -o /etc/apt/keyrings/unityhub.gpg
+      /tmp/unityhub-public.key
+  args:
+    creates: /etc/apt/keyrings/unityhub.gpg
+
+- name: Configurar repositorio oficial de Unity Hub
+  ansible.builtin.copy:
+    dest: /etc/apt/sources.list.d/unityhub.list
+    mode: '0644'
+    content: |
+      deb [arch=amd64 signed-by=/etc/apt/keyrings/unityhub.gpg] https://hub.unity3d.com/linux/repos/deb stable main
+
+- name: Actualizar cache APT
+  ansible.builtin.apt:
+    update_cache: true
+
+- name: Instalar Unity Hub
+  ansible.builtin.apt:
+    name: unityhub
+    state: present
+
+- name: Eliminar clave temporal
+  ansible.builtin.file:
+    path: /tmp/unityhub-public.key
+    state: absent
+
+- name: Comprobar paquete Unity Hub
+  ansible.builtin.command:
+    cmd: dpkg-query -W -f='${Version}' unityhub
+  register: unity_version
+  changed_when: false
+
+- name: Mostrar version de Unity Hub
+  ansible.builtin.debug:
+    var: unity_version.stdout

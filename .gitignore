@@ -1,0 +1,36 @@
+# Instaladores y binarios pesados
+*.deb
+*.rpm
+*.zip
+*.tar
+*.tar.gz
+*.tar.xz
+*.tgz
+*.iso
+
+# Instaladores ejecutables descargados
+roles/*/files/*.sh
+
+# Logs y temporales
+*.log
+*.retry
+*.tmp
+
+# Python
+__pycache__/
+*.pyc
+
+# Editores
+.vscode/
+.idea/
+
+# Claves y secretos
+*.pem
+*.key
+id_rsa
+id_rsa.pub
+id_ed25519
+id_ed25519.pub
+
+# Ansible Vault
+*.vault-password

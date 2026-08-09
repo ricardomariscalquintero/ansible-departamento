@@ -1,0 +1,9 @@
+---
+# tasks file for roles/libreoffice_base
+- name: Instalar LibreOffice Base
+  ansible.builtin.apt:
+    name:
+      - libreoffice-base
+      - libreoffice-base-core
+    state: present
+    update_cache: true

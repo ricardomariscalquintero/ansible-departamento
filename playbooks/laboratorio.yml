@@ -1,0 +1,35 @@
+---
+- name: Configuracion comun de clientes Debian
+  hosts: clientes
+  become: true
+
+  roles:
+#    - common
+#    - git
+#    - python
+#    - maven
+#    - vlc
+#    - audacity
+#    - gimp
+#    - inkscape
+#    - geany
+#    - firefox
+#    - chromium
+#    - libreoffice_base
+#    - vokoscreen
+#    - vscode
+#    - scenebuilder
+#    - java21
+#    - java25
+#    - mysql
+#    - postgresql
+#    - veyon
+#    - gthumb
+#    - pencil
+#    - netbeans
+#    - docker
+#    - android_studio
+#    - anaconda
+#    - oracle_client
+#    - coppeliasim
+    - unity

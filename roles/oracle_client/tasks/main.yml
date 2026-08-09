@@ -1,0 +1,106 @@
+---
+# tasks file for roles/oracle_client
+- name: Instalar dependencias de Oracle Instant Client
+  ansible.builtin.apt:
+    name:
+      - unzip
+      - libaio1
+    state: present
+    update_cache: true
+
+- name: Descargar Oracle Instant Client Basic en el controlador
+  ansible.builtin.get_url:
+    url: https://download.oracle.com/otn_software/linux/instantclient/instantclient-basic-linuxx64.zip
+    dest: "{{ role_path }}/files/instantclient-basic-linuxx64.zip"
+    mode: '0644'
+  delegate_to: localhost
+  run_once: true
+  become: false
+
+- name: Descargar Oracle Instant Client SQLPlus en el controlador
+  ansible.builtin.get_url:
+    url: https://download.oracle.com/otn_software/linux/instantclient/instantclient-sqlplus-linuxx64.zip
+    dest: "{{ role_path }}/files/instantclient-sqlplus-linuxx64.zip"
+    mode: '0644'
+  delegate_to: localhost
+  run_once: true
+  become: false
+
+- name: Crear directorio para Oracle
+  ansible.builtin.file:
+    path: /opt/oracle
+    state: directory
+    mode: '0755'
+
+- name: Copiar Instant Client Basic a los clientes
+  ansible.builtin.copy:
+    src: instantclient-basic-linuxx64.zip
+    dest: /tmp/oracle-basic.zip
+    mode: '0644'
+
+- name: Copiar Instant Client SQLPlus a los clientes
+  ansible.builtin.copy:
+    src: instantclient-sqlplus-linuxx64.zip
+    dest: /tmp/oracle-sqlplus.zip
+    mode: '0644'
+
+- name: Descomprimir Instant Client Basic
+  ansible.builtin.unarchive:
+    src: /tmp/oracle-basic.zip
+    dest: /opt/oracle
+    remote_src: true
+    creates: /opt/oracle/instantclient_23_26/libclntsh.so.23.1
+
+- name: Descomprimir Instant Client SQLPlus
+  ansible.builtin.unarchive:
+    src: /tmp/oracle-sqlplus.zip
+    dest: /opt/oracle
+    remote_src: true
+    creates: /opt/oracle/instantclient_23_26/sqlplus
+
+- name: Crear enlace para sqlplus
+  ansible.builtin.file:
+    src: /opt/oracle/instantclient_23_26/sqlplus
+    dest: /usr/local/bin/sqlplus
+    state: link
+
+- name: Configurar librerias de Oracle
+  ansible.builtin.copy:
+    dest: /etc/ld.so.conf.d/oracle-instantclient.conf
+    mode: '0644'
+    content: |
+      /opt/oracle/instantclient_23_26
+
+- name: Actualizar cache de librerias
+  ansible.builtin.command:
+    cmd: ldconfig
+  changed_when: false
+
+- name: Configurar variables de entorno de Oracle
+  ansible.builtin.copy:
+    dest: /etc/profile.d/oracle.sh
+    mode: '0644'
+    content: |
+      export ORACLE_HOME=/opt/oracle/instantclient_23_26
+      export PATH=$ORACLE_HOME:$PATH
+      export LD_LIBRARY_PATH=$ORACLE_HOME:$LD_LIBRARY_PATH
+
+- name: Eliminar ZIP Basic temporal
+  ansible.builtin.file:
+    path: /tmp/oracle-basic.zip
+    state: absent
+
+- name: Eliminar ZIP SQLPlus temporal
+  ansible.builtin.file:
+    path: /tmp/oracle-sqlplus.zip
+    state: absent
+
+- name: Comprobar SQLPlus
+  ansible.builtin.command:
+    cmd: /opt/oracle/instantclient_23_26/sqlplus -v
+  register: sqlplus_version
+  changed_when: false
+
+- name: Mostrar version de SQLPlus
+  ansible.builtin.debug:
+    var: sqlplus_version.stdout

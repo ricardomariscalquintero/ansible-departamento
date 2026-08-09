@@ -1,0 +1,7 @@
+---
+# tasks file for roles/maven
+- name: Instalar Maven
+  ansible.builtin.apt:
+    name: maven
+    state: present
+    update_cache: true

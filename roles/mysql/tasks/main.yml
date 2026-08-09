@@ -1,0 +1,62 @@
+---
+# tasks file for roles/mysql
+- name: Instalar dependencias para repositorio MySQL
+  ansible.builtin.apt:
+    name:
+      - ca-certificates
+      - gnupg
+      - wget
+    state: present
+    update_cache: true
+
+- name: Descargar clave GPG de MySQL
+  ansible.builtin.get_url:
+    url: https://repo.mysql.com/RPM-GPG-KEY-mysql-2025
+    dest: /tmp/mysql.gpg
+    mode: '0644'
+
+- name: Instalar clave GPG de MySQL
+  ansible.builtin.command:
+    cmd: gpg --dearmor --yes -o /usr/share/keyrings/mysql.gpg /tmp/mysql.gpg
+  args:
+    creates: /usr/share/keyrings/mysql.gpg
+
+- name: Configurar repositorio MySQL 8.4 LTS
+  ansible.builtin.copy:
+    dest: /etc/apt/sources.list.d/mysql.list
+    mode: '0644'
+    content: |
+      deb [signed-by=/usr/share/keyrings/mysql.gpg] http://repo.mysql.com/apt/debian/ bookworm mysql-8.4-lts
+      deb [signed-by=/usr/share/keyrings/mysql.gpg] http://repo.mysql.com/apt/debian/ bookworm mysql-tools
+
+- name: Actualizar cache APT
+  ansible.builtin.apt:
+    update_cache: true
+
+- name: Instalar MySQL 8.4
+  ansible.builtin.apt:
+    name:
+      - mysql-server
+      - mysql-client
+    state: present
+
+- name: Habilitar y arrancar MySQL
+  ansible.builtin.systemd:
+    name: mysql
+    state: started
+    enabled: true
+
+- name: Eliminar clave temporal
+  ansible.builtin.file:
+    path: /tmp/mysql.gpg
+    state: absent
+
+- name: Comprobar version de MySQL
+  ansible.builtin.command:
+    cmd: mysql --version
+  register: mysql_version
+  changed_when: false
+
+- name: Mostrar version de MySQL
+  ansible.builtin.debug:
+    var: mysql_version.stdout

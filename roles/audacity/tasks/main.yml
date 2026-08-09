@@ -1,0 +1,7 @@
+---
+# tasks file for roles/audacity
+- name: Instalar Audacity
+  ansible.builtin.apt:
+    name: audacity
+    state: present
+    update_cache: true

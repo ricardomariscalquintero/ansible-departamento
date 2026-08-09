@@ -1,0 +1,65 @@
+---
+# tasks file for roles/java25
+- name: Instalar dependencias para repositorio Adoptium
+  ansible.builtin.apt:
+    name:
+      - wget
+      - apt-transport-https
+      - gpg
+    state: present
+    update_cache: true
+
+- name: Descargar clave GPG de Adoptium
+  ansible.builtin.get_url:
+    url: https://packages.adoptium.net/artifactory/api/gpg/key/public
+    dest: /tmp/adoptium.key
+    mode: '0644'
+
+- name: Crear keyring de Adoptium
+  ansible.builtin.shell:
+    cmd: >
+      gpg --dearmor < /tmp/adoptium.key
+      > /etc/apt/trusted.gpg.d/adoptium.gpg
+    creates: /etc/apt/trusted.gpg.d/adoptium.gpg
+
+- name: Añadir repositorio Adoptium para Debian
+  ansible.builtin.copy:
+    dest: /etc/apt/sources.list.d/adoptium.list
+    content: "deb https://packages.adoptium.net/artifactory/deb {{ ansible_distribution_release }} main\n"
+    mode: '0644'
+
+- name: Instalar Eclipse Temurin JDK 25
+  ansible.builtin.apt:
+    name: temurin-25-jdk
+    state: present
+    update_cache: true
+
+- name: Comprobar Java 25
+  ansible.builtin.command:
+    cmd: java -version
+  register: java_version
+  changed_when: false
+
+- name: Mostrar version de Java
+  ansible.builtin.debug:
+    var: java_version.stderr
+
+- name: Seleccionar Java 25 como predeterminado
+  ansible.builtin.command:
+    cmd: update-alternatives --set java /usr/lib/jvm/temurin-25-jdk-amd64/bin/java
+  changed_when: false
+
+- name: Seleccionar Javac 25 como predeterminado
+  ansible.builtin.command:
+    cmd: update-alternatives --set javac /usr/lib/jvm/temurin-25-jdk-amd64/bin/javac
+  changed_when: false
+
+- name: Comprobar version de Java
+  ansible.builtin.command:
+    cmd: java -version
+  register: java_version
+  changed_when: false
+
+- name: Mostrar version de Java
+  ansible.builtin.debug:
+    var: java_version.stderr

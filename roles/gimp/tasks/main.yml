@@ -1,0 +1,7 @@
+---
+# tasks file for roles/gimp
+- name: Instalar GIMP
+  ansible.builtin.apt:
+    name: gimp
+    state: present
+    update_cache: true

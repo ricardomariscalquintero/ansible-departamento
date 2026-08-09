@@ -1,0 +1,35 @@
+---
+# tasks file for roles/scenebuilder
+- name: Instalar Flatpak
+  ansible.builtin.apt:
+    name: flatpak
+    state: present
+    update_cache: true
+
+- name: Comprobar repositorios Flatpak
+  ansible.builtin.command:
+    cmd: flatpak remotes --columns=name
+  register: flatpak_remotes
+  changed_when: false
+
+- name: Añadir Flathub
+  ansible.builtin.command:
+    cmd: >
+      flatpak remote-add --if-not-exists
+      flathub
+      https://flathub.org/repo/flathub.flatpakrepo
+  when: "'flathub' not in flatpak_remotes.stdout"
+
+- name: Comprobar aplicaciones Flatpak instaladas
+  ansible.builtin.command:
+    cmd: flatpak list --app --columns=application
+  register: flatpak_apps
+  changed_when: false
+
+- name: Instalar Scene Builder
+  ansible.builtin.command:
+    cmd: >
+      flatpak install --system -y
+      flathub
+      com.gluonhq.SceneBuilder
+  when: "'com.gluonhq.SceneBuilder' not in flatpak_apps.stdout"

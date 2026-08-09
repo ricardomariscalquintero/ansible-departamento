@@ -1,0 +1,7 @@
+---
+# tasks file for roles/vokoscreen
+- name: Instalar VokoscreenNG
+  ansible.builtin.apt:
+    name: vokoscreen-ng
+    state: present
+    update_cache: true

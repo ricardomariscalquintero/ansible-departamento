@@ -1,0 +1,7 @@
+---
+# tasks file for roles/chromium
+- name: Instalar Chromium
+  ansible.builtin.apt:
+    name: chromium
+    state: present
+    update_cache: true

@@ -1,0 +1,36 @@
+---
+# tasks file for roles/veyon
+- name: Descargar Veyon 4.11.0 en el controlador
+  ansible.builtin.get_url:
+    url: https://github.com/veyon/veyon/releases/download/v4.11.0/veyon_4.11.0.0-debian.12_amd64.deb
+    dest: "{{ role_path }}/files/veyon_4.11.0.0-debian.12_amd64.deb"
+    mode: '0644'
+  delegate_to: localhost
+  run_once: true
+  become: false
+
+- name: Copiar Veyon a los clientes
+  ansible.builtin.copy:
+    src: veyon_4.11.0.0-debian.12_amd64.deb
+    dest: /tmp/veyon.deb
+    mode: '0644'
+
+- name: Instalar Veyon
+  ansible.builtin.apt:
+    deb: /tmp/veyon.deb
+    state: present
+
+- name: Eliminar instalador temporal de Veyon
+  ansible.builtin.file:
+    path: /tmp/veyon.deb
+    state: absent
+
+- name: Comprobar version de Veyon
+  ansible.builtin.command:
+    cmd: veyon-cli --version
+  register: veyon_version
+  changed_when: false
+
+- name: Mostrar version de Veyon
+  ansible.builtin.debug:
+    var: veyon_version.stdout

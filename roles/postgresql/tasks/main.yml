@@ -1,0 +1,25 @@
+---
+# tasks file for roles/postgresql
+- name: Instalar PostgreSQL
+  ansible.builtin.apt:
+    name:
+      - postgresql
+      - postgresql-client
+    state: present
+    update_cache: true
+
+- name: Habilitar y arrancar PostgreSQL
+  ansible.builtin.systemd:
+    name: postgresql
+    state: started
+    enabled: true
+
+- name: Comprobar version de PostgreSQL
+  ansible.builtin.command:
+    cmd: psql --version
+  register: postgresql_version
+  changed_when: false
+
+- name: Mostrar version de PostgreSQL
+  ansible.builtin.debug:
+    var: postgresql_version.stdout

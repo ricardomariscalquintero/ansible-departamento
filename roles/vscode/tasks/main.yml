@@ -1,0 +1,50 @@
+---
+# tasks file for roles/vscode
+- name: Instalar dependencias para VS Code
+  ansible.builtin.apt:
+    name:
+      - wget
+      - gpg
+      - apt-transport-https
+    state: present
+    update_cache: true
+
+- name: Descargar clave GPG de Microsoft
+  ansible.builtin.get_url:
+    url: https://packages.microsoft.com/keys/microsoft.asc
+    dest: /tmp/microsoft.asc
+    mode: '0644'
+
+- name: Crear keyring de Microsoft
+  ansible.builtin.shell:
+    cmd: >
+      gpg --dearmor < /tmp/microsoft.asc
+      > /usr/share/keyrings/microsoft.gpg
+    creates: /usr/share/keyrings/microsoft.gpg
+
+- name: Configurar repositorio de Visual Studio Code
+  ansible.builtin.copy:
+    dest: /etc/apt/sources.list.d/vscode.sources
+    mode: '0644'
+    content: |
+      Types: deb
+      URIs: https://packages.microsoft.com/repos/code
+      Suites: stable
+      Components: main
+      Architectures: amd64
+      Signed-By: /usr/share/keyrings/microsoft.gpg
+
+- name: Instalar Visual Studio Code
+  ansible.builtin.apt:
+    name: code
+    state: present
+    update_cache: true
+
+- name: Instalar extensiones de Visual Studio Code
+  ansible.builtin.command:
+    cmd: "code --install-extension {{ item }} --force"
+  become: true
+  become_user: "{{ vscode_user }}"
+  loop: "{{ vscode_extensions }}"
+  register: vscode_extension_result
+  changed_when: "'successfully installed' in vscode_extension_result.stdout"

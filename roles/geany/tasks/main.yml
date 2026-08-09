@@ -1,0 +1,7 @@
+---
+# tasks file for roles/geany
+- name: Instalar Geany
+  ansible.builtin.apt:
+    name: geany
+    state: present
+    update_cache: true
