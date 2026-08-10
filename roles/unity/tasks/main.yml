@@ -1,13 +1,45 @@
 ---
-# tasks file for roles/unity
-- name: Instalar dependencias para Unity Hub
+# ============================================================
+# Unity Hub
+# ============================================================
+
+- name: Instalar dependencias necesarias
   ansible.builtin.apt:
     name:
+      - ca-certificates
       - curl
       - gnupg
-      - ca-certificates
     state: present
-    update_cache: true
+
+
+# ============================================================
+# Limpiar configuraciones anteriores de Unity
+# ============================================================
+
+- name: Eliminar repositorio antiguo Unity Hub sources
+  ansible.builtin.file:
+    path: /etc/apt/sources.list.d/unityhub.sources
+    state: absent
+
+- name: Eliminar repositorio Unity Hub anterior
+  ansible.builtin.file:
+    path: /etc/apt/sources.list.d/unityhub.list
+    state: absent
+
+- name: Eliminar keyring antiguo de Unity
+  ansible.builtin.file:
+    path: /usr/share/keyrings/Unity_Technologies_ApS.gpg
+    state: absent
+
+- name: Eliminar keyring Unity generado anteriormente
+  ansible.builtin.file:
+    path: /etc/apt/keyrings/unityhub.gpg
+    state: absent
+
+
+# ============================================================
+# Configurar clave oficial
+# ============================================================
 
 - name: Crear directorio de keyrings
   ansible.builtin.file:
@@ -21,14 +53,24 @@
     dest: /tmp/unityhub-public.key
     mode: '0644'
 
-- name: Convertir clave de Unity a GPG
+- name: Convertir clave publica de Unity a keyring GPG
   ansible.builtin.command:
     cmd: >
       gpg --dearmor --yes
       -o /etc/apt/keyrings/unityhub.gpg
       /tmp/unityhub-public.key
-  args:
-    creates: /etc/apt/keyrings/unityhub.gpg
+
+- name: Dar permisos de lectura al keyring
+  ansible.builtin.file:
+    path: /etc/apt/keyrings/unityhub.gpg
+    owner: root
+    group: root
+    mode: '0644'
+
+
+# ============================================================
+# Configurar repositorio oficial
+# ============================================================
 
 - name: Configurar repositorio oficial de Unity Hub
   ansible.builtin.copy:
@@ -36,6 +78,11 @@
     mode: '0644'
     content: |
       deb [arch=amd64 signed-by=/etc/apt/keyrings/unityhub.gpg] https://hub.unity3d.com/linux/repos/deb stable main
+
+
+# ============================================================
+# Actualizar e instalar
+# ============================================================
 
 - name: Actualizar cache APT
   ansible.builtin.apt:
@@ -46,14 +93,24 @@
     name: unityhub
     state: present
 
+
+# ============================================================
+# Limpieza
+# ============================================================
+
 - name: Eliminar clave temporal
   ansible.builtin.file:
     path: /tmp/unityhub-public.key
     state: absent
 
-- name: Comprobar paquete Unity Hub
+
+# ============================================================
+# Comprobacion
+# ============================================================
+
+- name: Comprobar Unity Hub instalado
   ansible.builtin.command:
-    cmd: dpkg-query -W -f='${Version}' unityhub
+    cmd: dpkg-query -W -f='${Status} ${Version}\n' unityhub
   register: unity_version
   changed_when: false
 

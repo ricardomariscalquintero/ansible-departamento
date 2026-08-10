@@ -18,3 +18,14 @@
       - unzip
       - p7zip-full
     state: present
+    
+- name: Configurar hostname completo del equipo
+  ansible.builtin.hostname:
+    name: "{{ inventory_hostname }}.iesfernandoaguilar.es"
+
+- name: Configurar entrada 127.0.1.1 en /etc/hosts
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    regexp: '^127\.0\.1\.1'
+    line: "127.0.1.1 {{ inventory_hostname }}.iesfernandoaguilar.es"
+    state: present

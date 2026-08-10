@@ -1,0 +1,15 @@
+---
+- name: Configurar aula ICO2
+  hosts: ico2
+  become: true
+
+  roles:
+    - common
+    - libreoffice_base
+    - geany
+    - vlc
+    - gthumb
+
+    # VirtualBox 7.2.8 + Extension Pack ya viene en la imagen base
+    # Packet Tracer 9.0 pendiente para septiembre
+    # - packet_tracer
