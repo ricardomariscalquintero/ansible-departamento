@@ -1,5 +1,6 @@
 ---
 # tasks file for roles/docker
+
 - name: Instalar dependencias para Docker
   ansible.builtin.apt:
     name:
@@ -53,12 +54,6 @@
     name: docker
     state: started
     enabled: true
-
-- name: Anadir usuario ricardo al grupo docker
-  ansible.builtin.user:
-    name: ricardo
-    groups: docker
-    append: true
 
 - name: Eliminar clave temporal
   ansible.builtin.file:

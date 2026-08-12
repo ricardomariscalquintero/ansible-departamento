@@ -1,0 +1,117 @@
+---
+# tasks file for roles/packettracer
+
+# ============================================================
+# Cisco Packet Tracer
+# Descarga una sola vez en el controlador y distribución
+# posterior a los clientes.
+# ============================================================
+
+# ------------------------------------------------------------
+# Preparación del controlador
+# ------------------------------------------------------------
+
+- name: Instalar gdown con pipx en el controlador
+  ansible.builtin.command:
+    cmd: pipx install gdown
+  args:
+    creates: "{{ lookup('env', 'HOME') }}/.local/bin/gdown"
+  delegate_to: localhost
+  run_once: true
+  become: false
+
+
+# ------------------------------------------------------------
+# Descargar Packet Tracer
+# ------------------------------------------------------------
+
+- name: Descargar Packet Tracer desde Google Drive en el controlador
+  ansible.builtin.command:
+    cmd: >
+      {{ lookup('env', 'HOME') }}/.local/bin/gdown
+      1A5SMY14NPXEDJn0ikmrB-OFeKwOOJO3a
+      -O {{ playbook_dir }}/../roles/packettracer/files/packettracer.deb
+  args:
+    creates: "{{ playbook_dir }}/../roles/packettracer/files/packettracer.deb"
+  delegate_to: localhost
+  run_once: true
+  become: false
+
+# ------------------------------------------------------------
+# Preparación de los clientes
+# ------------------------------------------------------------
+
+- name: Instalar dependencias necesarias para Packet Tracer
+  ansible.builtin.apt:
+    name:
+      - libgl1
+      - libxcb-xinerama0
+      - libxcb-cursor0
+      - libxkbcommon-x11-0
+      - libnss3
+      - libasound2
+      - libxcomposite1
+      - libxdamage1
+      - libxrandr2
+      - libxtst6
+      - libxi6
+    state: present
+    update_cache: true
+
+
+# ------------------------------------------------------------
+# Copiar instalador a los clientes
+# ------------------------------------------------------------
+
+- name: Copiar Packet Tracer al cliente
+  ansible.builtin.copy:
+    src: packettracer.deb
+    dest: /tmp/packettracer.deb
+    mode: '0644'
+
+
+# ------------------------------------------------------------
+# Instalar Packet Tracer
+# ------------------------------------------------------------
+
+- name: Instalar Packet Tracer
+  ansible.builtin.apt:
+    deb: /tmp/packettracer.deb
+    state: present
+
+
+# ------------------------------------------------------------
+# Limpieza
+# ------------------------------------------------------------
+
+- name: Eliminar instalador temporal del cliente
+  ansible.builtin.file:
+    path: /tmp/packettracer.deb
+    state: absent
+
+
+# ------------------------------------------------------------
+# Comprobación
+# ------------------------------------------------------------
+
+- name: Comprobar instalacion de Packet Tracer
+  ansible.builtin.command:
+    cmd: dpkg-query -W -f='${Status} ${Version}\n' packettracer
+  register: packettracer_version
+  changed_when: false
+
+- name: Mostrar version instalada de Packet Tracer
+  ansible.builtin.debug:
+    var: packettracer_version.stdout
+
+- name: Comprobar ejecutable de Packet Tracer
+  ansible.builtin.stat:
+    path: /usr/local/bin/packettracer
+  register: packettracer_binary
+
+- name: Verificar ejecutable de Packet Tracer
+  ansible.builtin.assert:
+    that:
+      - packettracer_binary.stat.exists
+    fail_msg: "No se ha encontrado el ejecutable de Packet Tracer."
+    success_msg: "Packet Tracer instalado correctamente."

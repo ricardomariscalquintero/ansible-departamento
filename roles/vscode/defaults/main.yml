@@ -1,7 +1,5 @@
 ---
 # defaults file for roles/vscode
-vscode_user: ricardo
-
 vscode_extensions:
   - vscjava.vscode-java-pack
   - bilalekrem.scenebuilderextension

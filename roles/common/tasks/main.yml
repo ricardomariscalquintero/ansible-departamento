@@ -17,7 +17,11 @@
       - dnsutils
       - unzip
       - p7zip-full
+      - python3
+      - python3-pip
+      - openssh-server
     state: present
+    update_cache: true
     
 - name: Configurar hostname completo del equipo
   ansible.builtin.hostname:
