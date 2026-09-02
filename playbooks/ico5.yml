@@ -10,8 +10,7 @@
     - mysql
     - anaconda
     - coppeliasim
+    - packettracer
 
     # VirtualBox ya viene en la imagen base
-
-    # Packet Tracer 9.0 pendiente para septiembre
-    # - packet_tracer
+    
