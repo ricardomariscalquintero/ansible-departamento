@@ -11,9 +11,8 @@
     - vscode
     - scenebuilder
     - mysql
+    - packettracer
 
     # VirtualBox 7.2.8 + Extension Pack ya viene en la imagen base
     # p7zip esta incluido en common
-
-    # Packet Tracer 9.0 pendiente para septiembre
-    # - packet_tracer
+    
