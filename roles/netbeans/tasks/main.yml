@@ -10,7 +10,7 @@
 
 - name: Descargar NetBeans 30 en el controlador
   ansible.builtin.get_url:
-    url: https://dlcdn.apache.org/netbeans/netbeans/30/netbeans-30-bin.zip
+    url: https://archive.apache.org/dist/netbeans/netbeans/30/netbeans-30-bin.zip
     dest: "{{ role_path }}/files/netbeans-30-bin.zip"
     mode: '0644'
   delegate_to: localhost
