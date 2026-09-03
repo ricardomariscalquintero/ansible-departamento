@@ -5,14 +5,12 @@
 
   roles:
     - common
-
     # Es importante instalar Unity antes que Android Studio
     # para sanear/configurar correctamente su repositorio APT.
     - unity
     - android_studio
-    - vscode
     - scenebuilder
-    - netbeans
     - mysql
     - python
     - postgresql
+    

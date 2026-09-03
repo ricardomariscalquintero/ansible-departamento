@@ -12,6 +12,7 @@
       - git
       - vim
       - nano
+      - gedit
       - htop
       - net-tools
       - dnsutils

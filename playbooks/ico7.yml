@@ -7,7 +7,6 @@
     - common
     - vokoscreen
     - veyon
-    - vscode
     - firefox
     - chromium
     - gimp
@@ -18,9 +17,6 @@
     - mysql
     - postgresql
     - java25
-    - docker
     - git
     - maven
 
-    # VirtualBox 7.2.8 + Extension Pack ya viene en la imagen base
-    # p7zip esta incluido en common

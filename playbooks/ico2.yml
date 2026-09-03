@@ -5,11 +5,10 @@
 
   roles:
     - common
+    - java21
     - libreoffice_base
     - geany
     - vlc
     - gthumb
     - packettracer
 
-    # VirtualBox 7.2.8 + Extension Pack ya viene en la imagen base
-    

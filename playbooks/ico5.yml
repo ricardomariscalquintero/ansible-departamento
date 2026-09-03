@@ -5,12 +5,9 @@
 
   roles:
     - common
-    - vscode
     - python
     - mysql
     - anaconda
     - coppeliasim
     - packettracer
-
-    # VirtualBox ya viene en la imagen base
     

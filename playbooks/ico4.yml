@@ -8,12 +8,9 @@
     - vokoscreen
     - veyon
     - java21
-    - vscode
     - scenebuilder
     - mysql
     - oracle_client
     - python
     - packettracer
 
-    # VirtualBox 7.2.8 + Extension Pack ya viene en la imagen base
-    # p7zip esta incluido en common
