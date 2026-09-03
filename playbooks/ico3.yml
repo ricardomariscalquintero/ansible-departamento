@@ -13,4 +13,20 @@
     - mysql
     - python
     - postgresql
-    
+
+- name: Configurar controlador local
+  hosts: localhost
+  connection: local
+  become: true
+
+  roles:
+    - common
+    # Es importante instalar Unity antes que Android Studio
+    # para sanear/configurar correctamente su repositorio APT.
+    - unity
+    - android_studio
+    - scenebuilder
+    - mysql
+    - python
+    - postgresql
+ 

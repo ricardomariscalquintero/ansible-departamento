@@ -12,3 +12,16 @@
     - gthumb
     - packettracer
 
+- name: Configurar controlador local
+  hosts: localhost
+  connection: local
+  become: true
+
+  roles:
+    - common
+    - java21
+    - libreoffice_base
+    - geany
+    - vlc
+    - gthumb
+    - packettracer

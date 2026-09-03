@@ -11,3 +11,16 @@
     - coppeliasim
     - packettracer
     
+- name: Configurar controlador local
+  hosts: localhost
+  connection: local
+  become: true
+
+  roles:
+    - common
+    - python
+    - mysql
+    - anaconda
+    - coppeliasim
+    - packettracer
+    

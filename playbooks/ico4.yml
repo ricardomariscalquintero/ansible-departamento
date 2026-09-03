@@ -14,3 +14,19 @@
     - python
     - packettracer
 
+- name: Configurar controlador local
+  hosts: localhost
+  connection: local
+  become: true
+
+  roles:
+    - common
+    - vokoscreen
+    - veyon
+    - java21
+    - scenebuilder
+    - mysql
+    - oracle_client
+    - python
+    - packettracer
+    

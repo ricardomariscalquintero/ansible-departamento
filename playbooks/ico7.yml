@@ -20,3 +20,24 @@
     - git
     - maven
 
+- name: Configurar controlador local
+  hosts: localhost
+  connection: local
+  become: true
+
+  roles:
+    - common
+    - vokoscreen
+    - veyon
+    - firefox
+    - chromium
+    - gimp
+    - inkscape
+    - pencil
+    - vlc
+    - audacity
+    - mysql
+    - postgresql
+    - java25
+    - git
+    - maven
